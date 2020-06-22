@@ -101,6 +101,7 @@ func main() {
 		ThirdPartyPath:       *thirdPartyPath,
 		DevMode:              *devMode,
 		AppVersionLabel:      cfg.AppVersionLabel(),
+		DisableLicenseCheck:  cfg.DisableLicenseCheck,
 	})
 	if err != nil {
 		log.Fatalf(ctx, "frontend.NewServer: %v", err)

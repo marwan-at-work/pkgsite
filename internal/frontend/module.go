@@ -61,11 +61,11 @@ func (s *Server) legacyServeModulePageWithModule(ctx context.Context, w http.Res
 		tab = "overview"
 		settings = moduleTabLookup["overview"]
 	}
-	canShowDetails := modHeader.IsRedistributable || settings.AlwaysShowDetails
+	canShowDetails := modHeader.IsRedistributable || settings.AlwaysShowDetails || s.disableLicenseCheck
 	var details interface{}
 	if canShowDetails {
 		var err error
-		details, err = fetchDetailsForModule(ctx, r, tab, s.ds, mi, licenses)
+		details, err = fetchDetailsForModule(ctx, r, tab, s.ds, mi, licenses, s.disableLicenseCheck)
 		if err != nil {
 			return fmt.Errorf("error fetching page for %q: %v", tab, err)
 		}

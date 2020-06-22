@@ -99,6 +99,10 @@ type Config struct {
 	UseProfiler bool
 
 	Quota QuotaSettings
+
+	// DisableLicenseCheck allows for pkgsite to render
+	// packages that don't have licenses
+	DisableLicenseCheck bool
 }
 
 // AppVersionLabel returns the version label for the current instance.  This is
@@ -242,7 +246,8 @@ func Init(ctx context.Context) (_ *Config, err error) {
 			RecordOnly:   func() *bool { t := true; return &t }(),
 			AcceptedURLs: parseCommaList(GetEnv("GO_DISCOVERY_ACCEPTED_LIST", "")),
 		},
-		UseProfiler: os.Getenv("GO_DISCOVERY_USE_PROFILER") == "TRUE",
+		UseProfiler:         os.Getenv("GO_DISCOVERY_USE_PROFILER") == "TRUE",
+		DisableLicenseCheck: os.Getenv("GO_DISCOVERY_DISABLE_LICENSE_CHECK") == "TRUE",
 	}
 	cfg.AppMonitoredResource = &mrpb.MonitoredResource{
 		Type: "gae_app",

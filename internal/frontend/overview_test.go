@@ -46,7 +46,7 @@ func TestFetchOverviewDetails(t *testing.T) {
 	}
 
 	readme := &internal.Readme{Filepath: tc.module.LegacyReadmeFilePath, Contents: tc.module.LegacyReadmeContents}
-	got := constructOverviewDetails(ctx, &tc.module.ModuleInfo, readme, true, true)
+	got := constructOverviewDetails(ctx, &tc.module.ModuleInfo, readme, true, true, true)
 	if diff := cmp.Diff(tc.wantDetails, got); diff != "" {
 		t.Errorf("constructOverviewDetails(%q, %q) mismatch (-want +got):\n%s", tc.module.LegacyPackages[0].Path, tc.module.Version, diff)
 	}

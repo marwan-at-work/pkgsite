@@ -54,7 +54,7 @@ func (s *Server) legacyServeDirectoryPage(ctx context.Context, w http.ResponseWr
 		header.URL = constructDirectoryURL(dbDir.Path, dbDir.ModulePath, internal.LatestVersion)
 	}
 
-	details, err := constructDetailsForDirectory(r, tab, dbDir, licenses)
+	details, err := constructDetailsForDirectory(r, tab, dbDir, licenses, s.disableLicenseCheck)
 	if err != nil {
 		return err
 	}

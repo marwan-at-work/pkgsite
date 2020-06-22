@@ -110,7 +110,7 @@ func (s *Server) legacyServePackagePageWithPackage(ctx context.Context, w http.R
 	var details interface{}
 	if canShowDetails {
 		var err error
-		details, err = fetchDetailsForPackage(ctx, r, tab, s.ds, pkg)
+		details, err = fetchDetailsForPackage(ctx, r, tab, s.ds, pkg, s.disableLicenseCheck)
 		if err != nil {
 			return fmt.Errorf("fetching page for %q: %v", tab, err)
 		}

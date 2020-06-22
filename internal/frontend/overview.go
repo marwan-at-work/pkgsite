@@ -38,7 +38,7 @@ type OverviewDetails struct {
 
 // versionedLinks says whether the constructed URLs should have versions.
 // constructOverviewDetails uses the given version to construct an OverviewDetails.
-func constructOverviewDetails(ctx context.Context, mi *internal.ModuleInfo, readme *internal.Readme, isRedistributable bool, versionedLinks bool) *OverviewDetails {
+func constructOverviewDetails(ctx context.Context, mi *internal.ModuleInfo, readme *internal.Readme, isRedistributable, disableLicenseCheck, versionedLinks bool) *OverviewDetails {
 	var lv string
 	if versionedLinks {
 		lv = linkVersion(mi.Version, mi.ModulePath)
@@ -49,7 +49,7 @@ func constructOverviewDetails(ctx context.Context, mi *internal.ModuleInfo, read
 		ModulePath:      mi.ModulePath,
 		ModuleURL:       constructModuleURL(mi.ModulePath, lv),
 		RepositoryURL:   mi.SourceInfo.RepoURL(),
-		Redistributable: isRedistributable,
+		Redistributable: isRedistributable || disableLicenseCheck,
 	}
 	if overview.Redistributable && readme != nil {
 		overview.ReadMeSource = fileSource(mi.ModulePath, mi.Version, readme.Filepath)
@@ -59,9 +59,9 @@ func constructOverviewDetails(ctx context.Context, mi *internal.ModuleInfo, read
 }
 
 // fetchPackageOverviewDetails uses data for the given package to return an OverviewDetails.
-func fetchPackageOverviewDetails(ctx context.Context, pkg *internal.LegacyVersionedPackage, versionedLinks bool) *OverviewDetails {
+func fetchPackageOverviewDetails(ctx context.Context, pkg *internal.LegacyVersionedPackage, versionedLinks, disableLicenseCheck bool) *OverviewDetails {
 	od := constructOverviewDetails(ctx, &pkg.ModuleInfo, &internal.Readme{Filepath: pkg.LegacyReadmeFilePath, Contents: pkg.LegacyReadmeContents},
-		pkg.LegacyPackage.IsRedistributable, versionedLinks)
+		pkg.LegacyPackage.IsRedistributable, disableLicenseCheck, versionedLinks)
 	od.PackageSourceURL = pkg.SourceInfo.DirectoryURL(packageSubdir(pkg.Path, pkg.ModulePath))
 	if !pkg.LegacyPackage.IsRedistributable {
 		od.Redistributable = false

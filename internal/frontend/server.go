@@ -41,6 +41,7 @@ type Server struct {
 	devMode              bool
 	errorPage            []byte
 	appVersionLabel      string
+	disableLicenseCheck  bool
 
 	mu        sync.Mutex // Protects all fields below
 	templates map[string]*template.Template
@@ -56,6 +57,7 @@ type ServerConfig struct {
 	ThirdPartyPath       string
 	DevMode              bool
 	AppVersionLabel      string
+	DisableLicenseCheck  bool
 }
 
 // NewServer creates a new Server for the given database and template directory.
@@ -77,6 +79,7 @@ func NewServer(scfg ServerConfig) (_ *Server, err error) {
 		templates:            ts,
 		taskIDChangeInterval: scfg.TaskIDChangeInterval,
 		appVersionLabel:      scfg.AppVersionLabel,
+		disableLicenseCheck:  scfg.DisableLicenseCheck,
 	}
 	errorPageBytes, err := s.renderErrorPage(context.Background(), http.StatusInternalServerError, "error.tmpl", nil)
 	if err != nil {
