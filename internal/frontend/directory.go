@@ -46,7 +46,7 @@ func (s *Server) legacyServeDirectoryPage(ctx context.Context, w http.ResponseWr
 	if err != nil {
 		return err
 	}
-	header, err := legacyCreateDirectory(dbDir, licensesToMetadatas(licenses), false)
+	header, err := legacyCreateDirectory(dbDir, licensesToMetadatas(licenses), false, s.disableLicenseCheck)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (s *Server) legacyServeDirectoryPage(ctx context.Context, w http.ResponseWr
 // "Subdirectories" tab, we do not want to include packages whose import paths
 // are the same as the dirPath.
 func fetchDirectoryDetails(ctx context.Context, ds internal.DataSource, dirPath string, mi *internal.ModuleInfo,
-	licmetas []*licenses.Metadata, includeDirPath bool) (_ *Directory, err error) {
+	licmetas []*licenses.Metadata, includeDirPath, disableLicenseCheck bool) (_ *Directory, err error) {
 	defer derrors.Wrap(&err, "s.ds.fetchDirectoryDetails(%q, %q, %q, %v)", dirPath, mi.ModulePath, mi.Version, licmetas)
 
 	if includeDirPath && dirPath != mi.ModulePath && dirPath != stdlib.ModulePath {
@@ -100,7 +100,7 @@ func fetchDirectoryDetails(ctx context.Context, ds internal.DataSource, dirPath 
 			LegacyModuleInfo: internal.LegacyModuleInfo{ModuleInfo: *mi},
 			Path:             dirPath,
 			Packages:         pkgs,
-		}, licmetas, includeDirPath)
+		}, licmetas, includeDirPath, disableLicenseCheck)
 	}
 
 	dbDir, err := ds.LegacyGetDirectory(ctx, dirPath, mi.ModulePath, mi.Version, internal.AllFields)
@@ -109,12 +109,12 @@ func fetchDirectoryDetails(ctx context.Context, ds internal.DataSource, dirPath 
 			LegacyModuleInfo: internal.LegacyModuleInfo{ModuleInfo: *mi},
 			Path:             dirPath,
 			Packages:         nil,
-		}, licmetas, includeDirPath)
+		}, licmetas, includeDirPath, disableLicenseCheck)
 	}
 	if err != nil {
 		return nil, err
 	}
-	return legacyCreateDirectory(dbDir, licmetas, includeDirPath)
+	return legacyCreateDirectory(dbDir, licmetas, includeDirPath, disableLicenseCheck)
 }
 
 // legacyCreateDirectory constructs a *LegacyDirectory from the provided dbDir and licmetas.
@@ -126,7 +126,7 @@ func fetchDirectoryDetails(ctx context.Context, ds internal.DataSource, dirPath 
 // the module path. However, on the package and directory view's
 // "Subdirectories" tab, we do not want to include packages whose import paths
 // are the same as the dirPath.
-func legacyCreateDirectory(dbDir *internal.LegacyDirectory, licmetas []*licenses.Metadata, includeDirPath bool) (_ *Directory, err error) {
+func legacyCreateDirectory(dbDir *internal.LegacyDirectory, licmetas []*licenses.Metadata, includeDirPath, disableLicenseCheck bool) (_ *Directory, err error) {
 	defer derrors.Wrap(&err, "legacyCreateDirectory(%q, %q, %t)", dbDir.Path, dbDir.Version, includeDirPath)
 
 	var packages []*Package
@@ -134,7 +134,7 @@ func legacyCreateDirectory(dbDir *internal.LegacyDirectory, licmetas []*licenses
 		if !includeDirPath && pkg.Path == dbDir.Path {
 			continue
 		}
-		newPkg, err := legacyCreatePackage(pkg, &dbDir.ModuleInfo, false)
+		newPkg, err := legacyCreatePackage(pkg, &dbDir.ModuleInfo, false, disableLicenseCheck)
 		if err != nil {
 			return nil, err
 		}

@@ -33,7 +33,7 @@ func TestFetchDirectoryDetails(t *testing.T) {
 		var wantPkgs []*Package
 		for _, suffix := range suffixes {
 			sp := sample.LegacyPackage(modulePath, suffix)
-			pkg, err := legacyCreatePackage(sp, mi, false)
+			pkg, err := legacyCreatePackage(sp, mi, false, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -144,7 +144,7 @@ func TestFetchDirectoryDetails(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mi := sample.ModuleInfoReleaseType(tc.modulePath, tc.version)
 			got, err := fetchDirectoryDetails(ctx, testDB,
-				tc.dirPath, mi, sample.LicenseMetadata, tc.includeDirPath)
+				tc.dirPath, mi, sample.LicenseMetadata, tc.includeDirPath, false)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -194,7 +194,7 @@ func TestFetchDirectoryDetailsInvalidArguments(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mi := sample.ModuleInfoReleaseType(tc.modulePath, tc.version)
 			got, err := fetchDirectoryDetails(ctx, testDB,
-				tc.dirPath, mi, sample.LicenseMetadata, tc.includeDirPath)
+				tc.dirPath, mi, sample.LicenseMetadata, tc.includeDirPath, false)
 			if !errors.Is(err, derrors.InvalidArgument) {
 				t.Fatalf("expected err; got = \n%+v, %v", got, err)
 			}

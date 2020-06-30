@@ -156,7 +156,7 @@ func fetchDetailsForPackage(
 	case "versions":
 		return fetchPackageVersionsDetails(ctx, ds, pkg.Path, pkg.V1Path, pkg.ModulePath)
 	case "subdirectories":
-		return fetchDirectoryDetails(ctx, ds, pkg.Path, &pkg.ModuleInfo, pkg.Licenses, false)
+		return fetchDirectoryDetails(ctx, ds, pkg.Path, &pkg.ModuleInfo, pkg.Licenses, false, disableLicenseCheck)
 	case "imports":
 		return fetchImportsDetails(ctx, ds, pkg.Path, pkg.ModulePath, pkg.Version)
 	case "importedby":
@@ -177,14 +177,14 @@ func fetchDetailsForPackage(
 // fetchDetailsForVersionedDirectory returns tab details by delegating to the correct detail
 // handler.
 func fetchDetailsForVersionedDirectory(ctx context.Context, r *http.Request, tab string,
-	ds internal.DataSource, vdir *internal.VersionedDirectory) (interface{}, error) {
+	ds internal.DataSource, vdir *internal.VersionedDirectory, disableLicenseCheck bool) (interface{}, error) {
 	switch tab {
 	case "doc":
 		return fetchDocumentationDetailsNew(vdir.Package.Documentation), nil
 	case "versions":
 		return fetchPackageVersionsDetails(ctx, ds, vdir.Path, vdir.V1Path, vdir.ModulePath)
 	case "subdirectories":
-		return fetchDirectoryDetails(ctx, ds, vdir.Path, &vdir.ModuleInfo, vdir.Licenses, false)
+		return fetchDirectoryDetails(ctx, ds, vdir.Path, &vdir.ModuleInfo, vdir.Licenses, false, disableLicenseCheck)
 	case "imports":
 		return fetchImportsDetails(ctx, ds, vdir.Path, vdir.ModulePath, vdir.Version)
 	case "importedby":
@@ -219,7 +219,7 @@ func fetchDetailsForModule(
 ) (interface{}, error) {
 	switch tab {
 	case "packages":
-		return fetchDirectoryDetails(ctx, ds, mi.ModulePath, &mi.ModuleInfo, licensesToMetadatas(licenses), true)
+		return fetchDirectoryDetails(ctx, ds, mi.ModulePath, &mi.ModuleInfo, licensesToMetadatas(licenses), true, disableLicenseCheck)
 	case "licenses":
 		return &LicensesDetails{Licenses: transformLicenses(mi.ModulePath, mi.Version, licenses)}, nil
 	case "versions":
@@ -244,7 +244,7 @@ func constructDetailsForDirectory(r *http.Request, tab string, dir *internal.Leg
 		// fetchDetailsForPackage. However, since we already have the directory
 		// and licenses info, it doesn't make sense to call
 		// postgres.GetDirectory again.
-		return legacyCreateDirectory(dir, licensesToMetadatas(licenses), false)
+		return legacyCreateDirectory(dir, licensesToMetadatas(licenses), false, disableLicenseCheck)
 	case "licenses":
 		return &LicensesDetails{Licenses: transformLicenses(dir.ModulePath, dir.Version, licenses)}, nil
 	}

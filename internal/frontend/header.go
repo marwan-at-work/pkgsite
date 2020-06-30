@@ -49,7 +49,7 @@ type Module struct {
 // latestRequested indicates whether the user requested the latest
 // version of the package. If so, the returned Package.URL will have the
 // structure /<path> instead of /<path>@<version>.
-func legacyCreatePackage(pkg *internal.LegacyPackage, mi *internal.ModuleInfo, latestRequested bool) (_ *Package, err error) {
+func legacyCreatePackage(pkg *internal.LegacyPackage, mi *internal.ModuleInfo, latestRequested, disableLicenseCheck bool) (_ *Package, err error) {
 	defer derrors.Wrap(&err, "legacyCreatePackage(%v, %v)", pkg, mi)
 
 	if pkg == nil || mi == nil {
@@ -71,7 +71,7 @@ func legacyCreatePackage(pkg *internal.LegacyPackage, mi *internal.ModuleInfo, l
 	return &Package{
 		Path:              pkg.Path,
 		Synopsis:          pkg.Synopsis,
-		IsRedistributable: pkg.IsRedistributable,
+		IsRedistributable: pkg.IsRedistributable || disableLicenseCheck,
 		Licenses:          transformLicenseMetadata(pkg.Licenses),
 		Module:            *m,
 		URL:               constructPackageURL(pkg.Path, mi.ModulePath, urlVersion),

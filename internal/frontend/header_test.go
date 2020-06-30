@@ -138,7 +138,7 @@ func TestCreatePackageHeader(t *testing.T) {
 		},
 	} {
 		t.Run(tc.label, func(t *testing.T) {
-			got, err := legacyCreatePackage(&tc.pkg.LegacyPackage, &tc.pkg.ModuleInfo, false)
+			got, err := legacyCreatePackage(&tc.pkg.LegacyPackage, &tc.pkg.ModuleInfo, false, false)
 			if err != nil {
 				t.Fatal(err)
 			}

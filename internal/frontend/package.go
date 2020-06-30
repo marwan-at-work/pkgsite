@@ -88,7 +88,7 @@ func (s *Server) legacyServePackagePageWithPackage(ctx context.Context, w http.R
 			derrors.Wrap(&err, "legacyServePackagePageWithPackage(w, r, %q, %q, %q)", pkg.Path, pkg.ModulePath, requestedVersion)
 		}
 	}()
-	pkgHeader, err := legacyCreatePackage(&pkg.LegacyPackage, &pkg.ModuleInfo, requestedVersion == internal.LatestVersion)
+	pkgHeader, err := legacyCreatePackage(&pkg.LegacyPackage, &pkg.ModuleInfo, requestedVersion == internal.LatestVersion, s.disableLicenseCheck)
 	if err != nil {
 		return fmt.Errorf("creating package header for %s@%s: %v", pkg.Path, pkg.Version, err)
 	}
@@ -105,7 +105,7 @@ func (s *Server) legacyServePackagePageWithPackage(ctx context.Context, w http.R
 		http.Redirect(w, r, fmt.Sprintf(r.URL.Path+"?tab=%s", tab), http.StatusFound)
 		return nil
 	}
-	canShowDetails := pkg.LegacyPackage.IsRedistributable || settings.AlwaysShowDetails
+	canShowDetails := pkg.LegacyPackage.IsRedistributable || settings.AlwaysShowDetails || s.disableLicenseCheck
 
 	var details interface{}
 	if canShowDetails {
@@ -230,7 +230,7 @@ func (s *Server) servePackagePageWithVersionedDirectory(ctx context.Context,
 	var details interface{}
 	if canShowDetails {
 		var err error
-		details, err = fetchDetailsForVersionedDirectory(ctx, r, tab, s.ds, vdir)
+		details, err = fetchDetailsForVersionedDirectory(ctx, r, tab, s.ds, vdir, s.disableLicenseCheck)
 		if err != nil {
 			return fmt.Errorf("fetching page for %q: %v", tab, err)
 		}

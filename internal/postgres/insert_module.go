@@ -58,7 +58,8 @@ func (db *DB) InsertModule(ctx context.Context, m *internal.Module) (err error) 
 	if err := db.comparePaths(ctx, m); err != nil {
 		return err
 	}
-	removeNonDistributableData(m)
+	// TOOD: should be configurable
+	// removeNonDistributableData(m)
 	return db.saveModule(ctx, m)
 }
 
